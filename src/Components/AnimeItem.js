@@ -1,47 +1,50 @@
 import React, { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { IoIosArrowBack } from 'react-icons/io';
 
 function AnimeItem() {
-    const {id} = useParams()
+    const { id } = useParams()
+    const navigate = useNavigate();
 
-    //state
+    // state
     const [anime, setAnime] = React.useState({})
     const [characters, setCharacters] = React.useState([])
     const [showMore, setShowMore] = React.useState(false)
 
-    //destructure anime
+    // destructure anime
     const {
-        title, synopsis, 
-        trailer,duration,aired, 
-        season, images, rank, 
-        score,scored_by, popularity, 
+        title, synopsis,
+        trailer, duration, aired,
+        season, images, rank,
+        score, scored_by, popularity,
         status, rating, source } = anime
 
-    //get anime based on id
+    // get anime based on id
     const getAnime = async (anime) => {
         const response = await fetch(`https://api.jikan.moe/v4/anime/${anime}`)
         const data = await response.json()
         setAnime(data.data)
     }
 
-    //get characters
+    // get characters
     const getCharacters = async (anime) => {
         const response = await fetch(`https://api.jikan.moe/v4/anime/${anime}/characters`)
         const data = await response.json()
         setCharacters(data.data)
-        console.log(data.data)
     }
 
-
-    //initial render
+    // initial render
     useEffect(() => {
         getAnime(id)
         getCharacters(id)
-    }, [])
+    }, [id])
 
     return (
         <AnimeItemStyled>
+                 <div className="back-button" onClick={() => navigate(-1)}>
+                <IoIosArrowBack size={24} />
+            </div>
             <h1>{title}</h1>
             <div className="details">
                 <div className="detail">
@@ -65,14 +68,14 @@ function AnimeItem() {
                     {showMore ? synopsis : synopsis?.substring(0, 450) + '...'}
                     <button onClick={() => {
                         setShowMore(!showMore)
-                    }}>{showMore ? 'Show Less': 'Read More'}</button>
+                    }}>{showMore ? 'Show Less' : 'Read More'}</button>
                 </p>
             </div>
             <h3 className="title">Trailer</h3>
             <div className="trailer-con">
-                {trailer?.embed_url ? 
-                    <iframe 
-                        src={trailer?.embed_url} 
+                {trailer?.embed_url ?
+                    <iframe
+                        src={trailer?.embed_url}
                         title="Inline Frame Example"
                         width="800"
                         height="450"
@@ -85,8 +88,8 @@ function AnimeItem() {
             <h3 className="title">Characters</h3>
             <div className="characters">
                 {characters?.map((character, index) => {
-                    const {role} = character
-                    const {images, name, mal_id} = character.character
+                    const { role } = character
+                    const { images, name, mal_id } = character.character
                     return <Link to={`/character/${mal_id}`} key={index}>
                         <div className="character">
                             <img src={images?.jpg.image_url} alt="" />
@@ -100,52 +103,60 @@ function AnimeItem() {
     )
 }
 
+// ...
+
+// ...
+
+// ...
+
+// ...
+
 const AnimeItemStyled = styled.div`
     padding: 3rem 18rem;
     background-color: #EDEDED;
-    h1{
+    h1 {
         display: inline-block;
         font-size: 3rem;
         margin-bottom: 1.5rem;
         cursor: pointer;
-        background:linear-gradient( to right, #A855F7, #27AE60);
+        background: linear-gradient( to right, #A855F7, #27AE60);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         transition: all .4s ease-in-out;
-        &:hover{
+        &:hover {
             transform: skew(-3deg);
         }
     }
-    .title{
+    .title {
         display: inline-block;
         margin: 3rem 0;
         font-size: 2rem;
         cursor: pointer;
-        background:linear-gradient( to right, #A855F7 23%, #27AE60);
+        background: linear-gradient( to right, #A855F7 23%, #27AE60);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
-    .description{
+    .description {
         margin-top: 2rem;
         color: #6c7983;
         line-height: 1.7rem;
-        button{
+        button {
             background-color: transparent;
             border: none;
             outline: none;
             cursor: pointer;
             font-size: 1.2rem;
             color: #27AE60;
-            font-weight: 600;
+            font-weight: bold;
         }
     }
 
-    .trailer-con{
+    .trailer-con {
         display: flex;
         justify-content: center;
         align-items: center;
-        iframe{
+        iframe {
             outline: none;
             border: 5px solid #e5e7eb;
             padding: 1.5rem;
@@ -154,61 +165,75 @@ const AnimeItemStyled = styled.div`
         }
     }
 
-    .details{
+    .anime-details {
         background-color: #fff;
         border-radius: 20px;
         padding: 2rem;
         border: 5px solid #e5e7eb;
-        .detail{
+        margin-top: 2rem;
+        .detail {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            img{
+            img {
                 border-radius: 7px;
             }
         }
-        .anime-details{
+        .anime-details {
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            p{
+            p {
                 display: flex;
                 gap: 1rem;
+                align-items: center;
             }
-            p span:first-child{
-                font-weight: 600;
+            p span:first-child {
+                font-weight: bold;
                 color: #454e56;
+                min-width: 120px;
             }
         }
     }
 
-    .characters{
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        grid-gap: 2rem;
-        background-color: #fff;
-        padding: 2rem;
-        border-radius: 20px;
+    /* Added a wrapper container for the characters */
+    .characters-wrapper {
+        display: flex;
+        justify-content: center;
         border: 5px solid #e5e7eb;
-        .character{
+        border-radius: 20px;
+        background-color: #fff;
+    }
+
+    .characters {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-gap: 2rem;
+        padding: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        .character {
+            flex: 0 1 calc(20% - 2rem);
             padding: .4rem .6rem;
             border-radius: 7px;
             background-color: #EDEDED;
             transition: all .4s ease-in-out;
-            img{
+            img {
                 width: 100%;
             }
-            h4{
+            h4 {
                 padding: .5rem 0;
+                font-weight: bold;
                 color: #454e56;
             }
-            p{
+            p {
+                font-weight: bold;
                 color: #27AE60;
             }
-            &:hover{
+            &:hover {
                 transform: translateY(-5px);
             }
         }
     }
 `;
 
-export default AnimeItem
+export default AnimeItem;
